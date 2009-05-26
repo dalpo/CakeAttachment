@@ -24,15 +24,15 @@ class UploadBehavior extends ModelBehavior {
 
               'createDirectory' => true,
 
-              'randomFilenames' => true,
+              'uniqidAsFilenames' => false,
 
               'thumbsizes' => array(
 
-                //                  'small' => array('width' => 100, 'height' => 100, 'name' => '{$file}.small.{$ext}', 'autoResize' => true),
+                //                  'small' => array('width' => 100, 'height' => 100, 'name' => '{$file}.small.{$ext}', 'proportional' => true),
                 //
-                //                  'medium' => array('width' => 220, 'height' => 220, 'name' => '{$file}.medium.{$ext}', 'autoResize' => true),
+                //                  'medium' => array('width' => 220, 'height' => 220, 'name' => '{$file}.medium.{$ext}', 'proportional' => true),
                 //
-                //                  'large' => array('width' => 800, 'height' => 600, 'name' => '{$file}.large.{$ext}', 'autoResize' => true)
+                //                  'large' => array('width' => 800, 'height' => 600, 'name' => '{$file}.large.{$ext}', 'proportional' => true)
 
             ),
 
@@ -229,9 +229,9 @@ class UploadBehavior extends ModelBehavior {
             // This is hard-coded to only support JPEG + PNG + GIF at this time
             if (count($allowedExt) > 0 && (in_array($model->data[$model->name][$field]['type'], $allowedMime)) ||  in_array('*', $allowedMime)) {
                 foreach ($thumbsizes as $key => $value) {
-                    if(!isset($value['autoResize'])) $value['autoResize'] = true;
+                    if(!isset($value['proportional'])) $value['proportional'] = true;
                     $thumbName = $this->getThumbname ($model, $fileValues, $key, $uploadedFiles[$field]['filename']);
-                    $this->createthumb($model, $uploadedFiles[$field]['saveas'], $uploadedFiles[$field]['dir'] . DS . $thumbName, $value['width'], $value['height'], $value['autoResize']);
+                    $this->createthumb($model, $uploadedFiles[$field]['saveas'], $uploadedFiles[$field]['dir'] . DS . $thumbName, $value['width'], $value['height'], $value['proportional']);
                 }
             }
 
@@ -271,7 +271,7 @@ class UploadBehavior extends ModelBehavior {
 
     // Method to create thumbnail image
 
-    function createthumb(&$model, $name, $filename, $new_w, $new_h, $autoResize = true) {
+    function createthumb(&$model, $name, $filename, $new_w, $new_h, $proportional = true) {
 
         $system = explode(".", basename($name));
         $extension = array_pop($system);
@@ -309,7 +309,7 @@ class UploadBehavior extends ModelBehavior {
             $ratio = $old_y / $old_x;
             $thumb_h = $ratio * $new_w;
 
-        } elseif($autoResize && $new_h != 'auto' && $new_w != 'auto') {
+        } elseif($proportional && $new_h != 'auto' && $new_w != 'auto') {
 
             if ($old_x >= $old_y) {
 
@@ -447,7 +447,7 @@ class UploadBehavior extends ModelBehavior {
 
         extract(am($this->settings[$model->name]['defaultSettings'],$fileValues));
 
-        if ($randomFilenames) {
+        if ($uniqidAsFilenames) {
             return uniqid("");
         }
 
@@ -523,9 +523,7 @@ class UploadBehavior extends ModelBehavior {
     /**
      * Check the file extension of an uploaded file
      *
-     * @param unknown_type $data
-     * @param unknown_type $extensions
-     * @return unknown
+     * @return boolean
      */
     function validateFileExtension($model, $data, $extensions) {
         $eachArray = null;
@@ -549,7 +547,7 @@ class UploadBehavior extends ModelBehavior {
     }
 
     /**
-     * Check the file size of an uploaded file
+     * Validation: Check the file size of an uploaded file
      *
      * @param unknown_type $data
      * @param unknown_type $extensions
@@ -572,7 +570,7 @@ class UploadBehavior extends ModelBehavior {
     }
 
     /**
-     * Validate an uploaded file
+     * Validation: File required
      *
      * @return boolean
      */
@@ -594,7 +592,7 @@ class UploadBehavior extends ModelBehavior {
     }
 
     /**
-     * Validate an uploaded file
+     * Validate: return false if file already exists
      *
      * @return boolean
      */
@@ -627,12 +625,12 @@ class UploadBehavior extends ModelBehavior {
             break;
         }
 
-        $filename = $data[$field]['name'];
+        $filename = $data[$fieldname]['name'];
         $filename = $this->_getFilename($model, $this->settings[$model->name][$fieldname], $filename );
 
         //On Update Retrive existing data
         if($model->id) {
-            $entity = $model->find('first', array('conditions' => array("{$model->name}.id" => $model->id)));
+            $entity = $model->find('first', array('conditions' => array("{$model->name}.{$model->primaryKey}" => $model->id)));
             //and skip if you are loading the same file
             if($entity[$model->name][$fieldname] == $filename) {
                 return true;
