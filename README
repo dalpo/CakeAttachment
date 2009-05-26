@@ -1,4 +1,5 @@
 CakePHP plugin to manage file upload:
+http://www.cakephp.org
 
 HOW TO INSTALL?
 Put the dir `cake_attachment` in yours plugins dir.
@@ -60,3 +61,8 @@ class MyModel extends AppModel {
 
 }
 ?>
+
+	
+for more details see the source code
+
+
