@@ -1,0 +1,62 @@
+CakePHP plugin to manage file upload:
+
+HOW TO INSTALL?
+Put the dir `cake_attachment` in yours plugins dir.
+
+See the following example on how to use the plugin...
+
+
+
+In the model you have to put the following lines:
+
+[  Image is a field in the table my_models ;)  ]
+
+<?php
+class MyModel extends AppModel {
+
+    public $name = 'MyModel';
+
+    //require the UploadBehaviour
+    public $actsAs = array(
+        'CakeAttachment.Upload' => array(
+            'image' => array(
+                'dir' => "{IMAGES}my_dir",
+                'uniqueidAsFilenames' => true,
+                'deleteMainFile' => true,
+                'thumbsizes' => array(
+                    'main' => array('width' => 500, 'height' => 'auto', 'name' =>  'main.{$file}.{$ext}'),
+                    'thumb' => array('width' => 200, 'height' => 200, 'name' =>  'thumb.{$file}.{$ext}', 'proportional' => true)
+                )
+            )
+        )
+    );
+
+    //File validations..
+    public $validate = array(
+        'image' => array(
+            'notEmpty' => array(
+                'rule' => 'requiredFile',
+                'message' => 'File required',
+                'on' => 'create'
+            ),
+            'valid_upload' => array (
+                'rule' => array('validateUploadedFile'),
+                'message' => 'Invalid file'
+            ),
+            'validFile' => array (
+                'rule' => array('validateFileExtension', array('jpg', 'jpeg', 'png', 'gif')),
+                'message' => 'Invalid file: upload only jpg, png or gif'
+            ),
+            'maxFileSize' => array(
+                'rule' => array('maxFileSize', 2097152),
+                'message' => 'Invalid file'
+            ),
+            'notOverwriteFile' => array(
+                'rule' => array('denyOverwriteFile'),
+                'message' => 'File already exists'
+            )
+        )
+    );
+
+}
+?>
