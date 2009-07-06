@@ -317,11 +317,27 @@ class UploadBehavior extends ModelBehavior {
                 $ratio = $old_y / $old_x;
                 $thumb_h = $ratio * $new_w;
 
+                if($thumb_h > $new_h) {
+                    
+                    $thumb_h = $new_h;
+                    $ratio = $thumb_w / $thumb_h;
+                    $thumb_w = $ratio * $new_h;
+                    
+                }
+
             } elseif ($old_x < $old_y) {
 
                 $thumb_h = $new_h;
                 $ratio = $old_x / $old_y;
                 $thumb_w = $ratio * $new_h;
+
+                if($thumb_w > $new_w) {
+
+                    $thumb_w = $new_w;
+                    $ratio = $thumb_h / $thumb_w;
+                    $thumb_h = $ratio * $new_w;
+
+                }
 
             }
 
