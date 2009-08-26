@@ -156,7 +156,7 @@ class UploadBehavior extends ModelBehavior {
             // Check if file exists
             if(file_exists($saveAs)) {
                 if(!$overwriteExisting || !unlink($saveAs)) {
-                    $model->data[$model->name][$field]['name'] = uniqid("") . $extension;
+                    $model->data[$model->name][$field]['name'] = uniqid("") . '.' . $extension;
                     $saveAs = $dir . DS . $model->data[$model->name][$field]['name'];
                 }
             }
