@@ -351,9 +351,17 @@ class UploadBehavior extends ModelBehavior {
 
         $dst_img = imagecreatetruecolor($thumb_w, $thumb_h);
 
+        //transparent background..
+
+        //imagecolortransparent($dst_img, imagecolorallocate($dst_img,0,0,0));
+        //imagealphablending($dst_img, false);
+
+        imagealphablending($dst_img, false);
+        imagesavealpha($dst_img, true);
+
+        //end
+
         imagecopyresampled($dst_img, $src_img, 0, 0, 0, 0, $thumb_w, $thumb_h, $old_x, $old_y);
-
-
 
         if (preg_match("/png/", $extension)) {
             imagepng($dst_img, $filename);
