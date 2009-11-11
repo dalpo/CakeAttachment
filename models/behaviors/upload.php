@@ -378,6 +378,9 @@ class UploadBehavior extends ModelBehavior {
 
 
 
+
+
+
     function getThumbname ($model, $fileValues, $thumbsize, $filename, $extension = null) {
 
         if ($extension == null ) {
@@ -689,6 +692,48 @@ class UploadBehavior extends ModelBehavior {
 
         }
     }
+
+
+
+	/**
+	 * Method to resize and crop the image if height and width are larger than the
+	 * values from the parameters
+	 *
+	 * @param string $file
+	 * @param integer $width
+	 * @param integer $height
+	 * @param array $htmlAttributes
+	 */
+	/*
+	 * CROP FUNCTION.. TO CHECK...
+	 * 
+	 * public function resizeAndCrop($file, $width = 150, $height = 100, $htmlAttributes = false){
+		$file_path = $this->imgpath.DS.$file;
+		$cache_filename = 'rc_'.$width.'_'.$height.'_'.$file;
+		$file_type = $this->checkFile($file_path);
+		if($this->fileType){
+		
+			$this->resize($file, $width, $height, false, true, false);
+			$cropX = intval(($this->currentSize['width'] - $width) / 2);
+			$cropY = intval(($this->currentSize['height'] - $height) / 2);
+			
+			$this->newImage = imagecreatetruecolor($width, $height);
+			
+			if($this->fileType == 'PNG') {
+				imagesavealpha($this->newImage, true);
+				$trans_colour = imagecolorallocatealpha($this->newImage, 0, 0, 0, 127);
+				imagefill($this->newImage, 0, 0, $trans_colour);
+			}
+			
+			imagecopyresampled($this->newImage, $this->workingImage, 0, 0, $cropX, $cropY, $this->currentSize['width'], $this->currentSize['height'], $this->currentSize['width'], $this->currentSize['height']);
+			$this->saveFile($this->imgCachePath.$cache_filename);
+
+			return $this->Html->image($this->relativeImgPath.$cache_filename, $htmlAttributes);
+		
+		}
+	} */
+
+	// Look at http://www.lateralcode.com/manipulating-images-using-the-php-gd-library/ for a Watermarked implementation function
 
 }
 
