@@ -126,9 +126,15 @@ class UploadBehavior extends ModelBehavior {
                 break;
             }
 
+            //save original filename
+            $originalName =  $model->data[$model->name][$field]['name'];
+
             // Check extensions
             $parts = explode('.', low($model->data[$model->name][$field]['name']));
-            $extension = array_pop($parts);
+            $extension = null;
+
+            if(count($parts)) { $extension = array_pop($parts); }
+            
             $filename = implode('.', $parts);
 
             if(count($allowedExt) > 0 && !in_array($extension, $allowedExt) && !in_array('*', $allowedExt)) {
@@ -139,7 +145,11 @@ class UploadBehavior extends ModelBehavior {
 
             // Get filename
             $filename = $this->_getFilename($model, $fileValues, $filename);
-            $model->data[$model->name][$field]['name'] = $filename.'.'.$extension;
+            $model->data[$model->name][$field]['name'] = $filename;
+
+            if($extension) {
+              $model->data[$model->name][$field]['name'].= '.'.$extension;
+            }
 
             // Get file path
             $dir = $this->_getPath($model, $fileValues, $dir);
@@ -239,6 +249,7 @@ class UploadBehavior extends ModelBehavior {
             $model->data[$model->name]["{$field}_dir"] = str_replace(ROOT . DS . APP_DIR . DS, '', $dir);
             $model->data[$model->name]["{$field}_mimetype"] =  $model->data[$model->name][$field]['type'];
             $model->data[$model->name]["{$field}_filesize"] = $model->data[$model->name][$field]['size'];
+            $model->data[$model->name]["{$field}_filename"] = $originalName;
             $model->data[$model->name][$field] = $model->data[$model->name][$field]['name'];
 
             //if deleteMainFile = true then delete it and keep only thumbnails
@@ -375,9 +386,6 @@ class UploadBehavior extends ModelBehavior {
         imagedestroy($dst_img);
         imagedestroy($src_img);
     }
-
-
-
 
 
 
@@ -692,48 +700,6 @@ class UploadBehavior extends ModelBehavior {
 
         }
     }
-
-
-
-	/**
-	 * Method to resize and crop the image if height and width are larger than the
-	 * values from the parameters
-	 *
-	 * @param string $file
-	 * @param integer $width
-	 * @param integer $height
-	 * @param array $htmlAttributes
-	 */
-	/*
-	 * CROP FUNCTION.. TO CHECK...
-	 * 
-	 * public function resizeAndCrop($file, $width = 150, $height = 100, $htmlAttributes = false){
-		$file_path = $this->imgpath.DS.$file;
-		$cache_filename = 'rc_'.$width.'_'.$height.'_'.$file;
-		$file_type = $this->checkFile($file_path);
-		if($this->fileType){
-		
-			$this->resize($file, $width, $height, false, true, false);
-			$cropX = intval(($this->currentSize['width'] - $width) / 2);
-			$cropY = intval(($this->currentSize['height'] - $height) / 2);
-			
-			$this->newImage = imagecreatetruecolor($width, $height);
-			
-			if($this->fileType == 'PNG') {
-				imagesavealpha($this->newImage, true);
-				$trans_colour = imagecolorallocatealpha($this->newImage, 0, 0, 0, 127);
-				imagefill($this->newImage, 0, 0, $trans_colour);
-			}
-			
-			imagecopyresampled($this->newImage, $this->workingImage, 0, 0, $cropX, $cropY, $this->currentSize['width'], $this->currentSize['height'], $this->currentSize['width'], $this->currentSize['height']);
-			$this->saveFile($this->imgCachePath.$cache_filename);
-
-			return $this->Html->image($this->relativeImgPath.$cache_filename, $htmlAttributes);
-		
-		}
-	} */
-
-	// Look at http://www.lateralcode.com/manipulating-images-using-the-php-gd-library/ for a Watermarked implementation function
 
 }
 
