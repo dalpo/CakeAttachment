@@ -18,6 +18,7 @@ class MyModel extends AppModel {
     //require the UploadBehaviour
     public $actsAs = array(
         'CakeAttachment.Upload' => array(
+            //fields list
             'image' => array(
                 'dir' => "{IMAGES}my_dir",
 		//thumbnails declaration
@@ -42,21 +43,13 @@ class MyModel extends AppModel {
                 'message' => 'File required',
                 'on' => 'create'
             ),
-            'valid_upload' => array (
+            'validUpload' => array (
                 'rule' => array('validateUploadedFile'),
                 'message' => 'Invalid file'
             ),
-            'validFile' => array (
+            'validExtension' => array (
                 'rule' => array('validateFileExtension', array('jpg', 'jpeg', 'png', 'gif')),
                 'message' => 'Invalid file: upload only jpg, png or gif'
-            ),
-            'maxFileSize' => array(
-                'rule' => array('maxFileSize', 2097152),
-                'message' => 'Invalid file'
-            ),
-            'notOverwriteFile' => array(
-                'rule' => array('denyOverwriteFile'),
-                'message' => 'File already exists'
             )
         ),
 	'pdf' => array(
@@ -66,7 +59,7 @@ class MyModel extends AppModel {
             ),
             'validFile' => array (
                 'rule' => array('validateFileExtension', array('pdf')),
-                'message' => 'Invalid file: upload only jpg, png or gif'
+                'message' => 'Invalid file: upload only pdf'
             ),
             'maxFileSize' => array(
                 'rule' => array('maxFileSize', 2097152),
@@ -77,11 +70,36 @@ class MyModel extends AppModel {
     );
 
 }
+
 ?>
 
 
-This is all you need to upload your files on record save :)
-	
-for more details see the source code
+VIEW SAMPLE:
+========================================
+remember to load the UploadHelper from your controller
+> public $helpers    =  array('Html', 'Form', 'CakeAttachment.Upload');
 
 
+
+
+<?php echo $this->Form->create('Product', array('type' => 'file')); //YOU MUST DECLARE enctype="multipart/form-data"  ?>
+	<fieldset>
+ 		<legend><?php __('Edit Product'); ?></legend>
+	<?php
+		echo $this->Form->input('id');
+		echo $this->Form->input('title_it');
+		echo $this->Form->input('title_en');
+		echo $this->Form->input('description_it');
+		echo $this->Form->input('description_en');
+		echo $this->Form->input('published');
+		echo $this->Upload->imageInput('image', array( 'preview' => array('url' => '/img/products/' . $this->data['Product']['image'] )));
+		echo $this->Upload->input('attachment', array( 'preview' => array('url' => '/files/products/' . $this->data['Product']['attachment'] )));
+		echo $this->Form->input('category_id');
+	?>
+	</fieldset>
+<?php echo $this->Form->end(__('Submit', true));?>
+
+
+
+
+enjoy!
