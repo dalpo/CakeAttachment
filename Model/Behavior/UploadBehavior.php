@@ -1,4 +1,7 @@
 <?php
+
+App::uses('Folder', 'Utility');
+
 /**
  *  Upload Behaviour
  *  @author Andrea Dal Ponte (dalpo85@gmail.com)
@@ -40,7 +43,6 @@ class UploadBehavior extends ModelBehavior {
 
   public function setup(&$Model, $config = array()) {
     $settings = am ($this->_defaultSettings, $config);
-    uses('folder');
     $this->settings[$Model->alias] = $settings;
   }
 
@@ -51,7 +53,9 @@ class UploadBehavior extends ModelBehavior {
    * @param object $Model
    * @return boolean
    */
-  public function beforeSave(&$Model) {
+  public function beforeSave(Model &$Model) {
+    parent::beforeDelete($Model);
+
     $uploadedFiles	= array();
     $error = true;
     foreach ($this->settings[$Model->alias] as $field => $fileValues) {
@@ -98,7 +102,7 @@ class UploadBehavior extends ModelBehavior {
       $originalName =  $Model->data[$Model->alias][$field]['name'];
 
       // Check extensions
-      $parts = explode('.', low($Model->data[$Model->alias][$field]['name']));
+      $parts = explode('.', strtolower($Model->data[$Model->alias][$field]['name']));
       $extension = null;
 
       if(count($parts)) { $extension = array_pop($parts); }
@@ -209,7 +213,13 @@ class UploadBehavior extends ModelBehavior {
         foreach ($thumbsizes as $key => $value) {
           if(!isset($value['proportional'])) $value['proportional'] = true;
           $thumbName = $this->getThumbname ($Model, $fileValues, $key, $uploadedFiles[$field]['filename']);
-          $this->createthumb($Model, $uploadedFiles[$field]['saveas'], $uploadedFiles[$field]['dir'] . DS . $thumbName, $value['width'], $value['height'], $value['proportional']);
+          $this->createthumb(
+            $Model, 
+            $uploadedFiles[$field]['saveas'], 
+            $uploadedFiles[$field]['dir'] . DS . $thumbName, 
+            $value['width'], 
+            $value['height'], 
+            $value['proportional']);
         }
       }
 
@@ -220,14 +230,17 @@ class UploadBehavior extends ModelBehavior {
       $Model->data[$Model->alias]["{$field}_filename"] = $originalName;
       $Model->data[$Model->alias][$field] = $Model->data[$Model->alias][$field]['name'];
 
+
       //if deleteMainFile = true then delete it and keep only thumbnails
       if($deleteMainFile && file_exists($uploadedFiles[$field]['saveas'])) {
         unlink($uploadedFiles[$field]['saveas']);
       }
     }
+
+    return true;
   }
 
-  public function beforeDelete(&$Model) {
+  public function beforeDelete(Model &$Model) {
     foreach ($this->settings[$Model->alias] as $field => $fileValues) {
       if($field == 'defaultSettings') continue;
       extract(am($this->settings[$Model->alias]['defaultSettings'],$fileValues));
@@ -244,6 +257,8 @@ class UploadBehavior extends ModelBehavior {
         unlink($dFile);
       }
     }
+
+    return true;
   }
 
 
@@ -267,14 +282,7 @@ class UploadBehavior extends ModelBehavior {
     }
 
     $old_x = imagesx($src_img);
-
     $old_y = imagesy($src_img);
-
-    $Model->data[$Model->alias]['width'] = $old_x;
-
-    $Model->data[$Model->alias]['height'] = $old_y;
-
-    //Calculate the new dimensions in proportion
 
     if ($new_w == 'auto' && $new_h != 'auto') {
 
@@ -311,20 +319,15 @@ class UploadBehavior extends ModelBehavior {
         $thumb_w = $ratio * $new_h;
 
         if($thumb_w > $new_w) {
-
           $thumb_w = $new_w;
           $ratio = $thumb_h / $thumb_w;
           $thumb_h = $ratio * $new_w;
-
         }
 
       }
-
     } else {
-
       $thumb_w = $new_w;
       $thumb_h = $new_h;
-
     }
 
 
@@ -357,7 +360,7 @@ class UploadBehavior extends ModelBehavior {
   public function getThumbname ($Model, $fileValues, $thumbsize, $filename, $extension = null) {
 
     if ($extension == null ) {
-      $parts = explode('.', low($filename));
+      $parts = explode('.', strtolower($filename));
       $extension = array_pop($parts);
       $filename = implode('.', $parts);
     }
@@ -451,7 +454,7 @@ class UploadBehavior extends ModelBehavior {
       return uniqid("");
     }
 
-    $string = htmlentities(low($string), null, 'UTF-8');
+    $string = htmlentities(strtolower($string), null, 'UTF-8');
 
     foreach ($nameCleanups as $regex => $replace) {
       if ($regex == 'decode') {
@@ -540,7 +543,7 @@ class UploadBehavior extends ModelBehavior {
 
     if(!is_array($upload_info))  { return true; }
     if($upload_info['error']==4) { return true; }
-    $filename = low($upload_info['name']);
+    $filename = strtolower($upload_info['name']);
     $parts = explode('.', $filename);
     $ext = array_pop($parts);
     return in_array($ext, $extensions);
