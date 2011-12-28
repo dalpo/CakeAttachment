@@ -1,0 +1,72 @@
+= CakeAttachment
+
+CakeAttachment is a plugin for CakePHP to improved easy file upload. The CakeAttachment upload Behavior intent was to keep setup as easy as possible and to treat files as a simple table column. It manages simple validations and can transform its assigned image into thumbnails if needed.
+
+
+== Installation:
+
+==== Add a git submodule
+
+  git submodule add git@github.com:dalpo/CakeAttachment.git app/Plugin/CakeAttachment
+  git submodule init && git submodule update
+
+==== Bootstrap
+
+Add this to load correctly the plugin under app/config/bootstrap.php
+
+  CakePlugin::load('CakeAttachment');
+
+==== Model Setup
+
+  class MyUploadModel extends AppModel {
+  
+    public $actsAs = array(
+      'CakeAttachment.Upload' => array(
+        'fieldname' => array(
+          'dir' => "{IMAGES}my_upload_directory",
+            //thumbnails declaration
+            'thumbsizes' => array(
+                'main' => array('width' => 500, 'height' => 'auto', 'name' =>  'main.{$file}.{$ext}'),
+                'preview' => array('width' => 250, 'height' => 250, 'name' => 'preview.{$file}.{$ext}')
+                'thumb' => array('width' => 100, 'height' => 100, 'name' =>  'thumb.{$file}.{$ext}', 'proportional' => false)
+            )
+        ),
+        'another_field' => array(
+          'uniqidAsFilenames' => true,
+          'dir' => "{FILES}my_second_upload_directory"
+        )
+      )
+    );
+  
+  }
+
+==== Validations
+
+  public $validate = array(
+    'fieldname' => array(
+      'notEmpty' => array(
+        'rule' => 'requiredFile',
+        'message' => 'File required',
+        'on' => 'create'
+      ),
+      'validUpload' => array (
+        'rule' => array('validateUploadedFile'),
+        'message' => 'Invalid file'
+      ),
+      'validExtension' => array (
+        'rule' => array('validateFileExtension', array('jpg', 'jpeg', 'png', 'gif')),
+        'message' => 'Invalid file: upload only jpg, png or gif'
+      ),
+      'maxFileSize' => array(
+        'rule' => array('maxFileSize', 2097152),
+       'message' => 'Invalid file'
+      )
+    )
+  );
+
+=== Capistrano
+
+If you use submodules with capistrano you should put this conf under deploy.rb
+
+  set :git_enable_submodules, 1
+
