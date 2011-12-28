@@ -64,6 +64,18 @@ Add this to load correctly the plugin under app/config/bootstrap.php
     )
   );
 
+==== Magic Fields
+Foreach declared field, theese fields will be automatically updated on every save:
+
+  "{$field}_dir"        // uploaded directory
+  "{$field}_mimetype"   // field mimetype
+  "{$field}_filesize"   // file size
+  "{$field}_filename"   // original file name
+
+==== Options
+
+  todo...
+
 === Capistrano
 
 If you use submodules with capistrano you should put this conf under deploy.rb
