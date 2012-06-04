@@ -41,7 +41,7 @@ class UploadBehavior extends ModelBehavior {
     )
   );
 
-  public function setup(&$Model, $config = array()) {
+  public function setup(Model $Model, $config = array()) {
     $settings = am ($this->_defaultSettings, $config);
     $this->settings[$Model->alias] = $settings;
   }
@@ -53,7 +53,7 @@ class UploadBehavior extends ModelBehavior {
    * @param object $Model
    * @return boolean
    */
-  public function beforeSave(Model &$Model) {
+  public function beforeSave(Model $Model) {
     parent::beforeDelete($Model);
 
     $uploadedFiles	= array();
@@ -240,7 +240,7 @@ class UploadBehavior extends ModelBehavior {
     return true;
   }
 
-  public function beforeDelete(Model &$Model) {
+  public function beforeDelete(Model $Model, $cascade = true) {
     foreach ($this->settings[$Model->alias] as $field => $fileValues) {
       if($field == 'defaultSettings') continue;
       extract(am($this->settings[$Model->alias]['defaultSettings'],$fileValues));
