@@ -7,7 +7,7 @@ CakeAttachment is a plugin for CakePHP to improved easy file upload. The CakeAtt
 
 #### Add a git submodule
 
-```bash
+```shell
   git submodule add git://github.com/dalpo/CakeAttachment.git app/Plugin/CakeAttachment
   git submodule init && git submodule update
 ```
