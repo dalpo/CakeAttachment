@@ -1,4 +1,10 @@
 <?php
+/**
+ * Licensed under The MIT License
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
+ */
 
 App::uses('Folder', 'Utility');
 
@@ -56,7 +62,7 @@ class UploadBehavior extends ModelBehavior {
   public function beforeSave(Model $Model, $cascade = true) {
     parent::beforeDelete($Model);
 
-    $uploadedFiles	= array();
+    $uploadedFiles  = array();
     $error = true;
     foreach ($this->settings[$Model->alias] as $field => $fileValues) {
       if($field == 'defaultSettings') continue;
@@ -106,7 +112,7 @@ class UploadBehavior extends ModelBehavior {
       $extension = null;
 
       if(count($parts)) { $extension = array_pop($parts); }
-      
+
       $filename = implode('.', $parts);
 
       if(count($allowedExt) > 0 && !in_array($extension, $allowedExt) && !in_array('*', $allowedExt)) {
@@ -214,11 +220,11 @@ class UploadBehavior extends ModelBehavior {
           if(!isset($value['proportional'])) $value['proportional'] = true;
           $thumbName = $this->getThumbname ($Model, $fileValues, $key, $uploadedFiles[$field]['filename']);
           $this->createthumb(
-            $Model, 
-            $uploadedFiles[$field]['saveas'], 
-            $uploadedFiles[$field]['dir'] . DS . $thumbName, 
-            $value['width'], 
-            $value['height'], 
+            $Model,
+            $uploadedFiles[$field]['saveas'],
+            $uploadedFiles[$field]['dir'] . DS . $thumbName,
+            $value['width'],
+            $value['height'],
             $value['proportional']);
         }
       }
@@ -305,11 +311,11 @@ class UploadBehavior extends ModelBehavior {
         $thumb_h = $ratio * $new_w;
 
         if($thumb_h > $new_h) {
-          
+
           $thumb_h = $new_h;
           $ratio = $thumb_w / $thumb_h;
           $thumb_w = $ratio * $new_h;
-          
+
         }
 
       } elseif ($old_x < $old_y) {
